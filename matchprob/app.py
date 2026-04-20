@@ -14,7 +14,7 @@ from matchprob.pbp import SAMPLE_MATCHES
 st.set_page_config(page_title="MatchProb", layout="wide")
 st.title("MatchProb — Tennis Match Win Probability")
 
-mode = st.radio("Mode", ["Manual Score", "Match Replay"], horizontal=True)
+mode = st.radio("Mode", ["Match Replay", "Manual Score"], horizontal=True)
 
 # --- Sidebar controls ---
 st.sidebar.header("Model Parameters")
@@ -212,32 +212,66 @@ else:
         col2.metric(match.player2, f"{1 - p1_prob:.3f}")
         st.progress(p1_prob)
 
-    # Win probability chart over match timeline
+    # Compute set and game boundaries
+    set_boundary_points = []
+    game_boundary_points = []
+    prev_sets = (0, 0)
+    prev_games = (0, 0)
+    for i, s in enumerate(traj):
+        curr_sets = (s.p1_sets, s.p2_sets)
+        curr_games = (s.p1_games, s.p2_games)
+        if curr_sets != prev_sets and i > 0:
+            prev_state = traj[i - 1]
+            label = f"{curr_sets[0]}-{curr_sets[1]} ({prev_state.p1_games}-{prev_state.p2_games})"
+            set_boundary_points.append({"Point": i, "label": label})
+            prev_sets = curr_sets
+            prev_games = curr_games  # skip game boundary at set boundary
+        elif curr_games != prev_games and i > 0:
+            game_boundary_points.append({"Point": i})
+            prev_games = curr_games
+
+    # Win probability chart with boundary lines
     st.subheader("Win Probability Timeline")
+
+    import altair as alt
+
     chart_data = pd.DataFrame({
         "Point": range(len(probs)),
         match.player1: probs,
         match.player2: [1 - p for p in probs],
-    }).set_index("Point")
+    })
+    melted = chart_data.melt("Point", var_name="Player", value_name="Win Probability")
 
-    st.line_chart(chart_data, height=350)
+    base = alt.Chart(melted).mark_line().encode(
+        x="Point:Q",
+        y=alt.Y("Win Probability:Q", scale=alt.Scale(domain=[0, 1])),
+        color="Player:N",
+    )
 
-    # Mark set boundaries on the chart (as text below)
-    set_boundaries = []
-    prev_sets = (0, 0)
-    for i, s in enumerate(traj):
-        curr_sets = (s.p1_sets, s.p2_sets)
-        if curr_sets != prev_sets and i > 0:
-            prev_state = traj[i - 1]
-            set_score = f"{prev_state.p1_games}-{prev_state.p2_games}"
-            set_boundaries.append(f"Point {i}: Set ends {curr_sets[0]}-{curr_sets[1]} "
-                                   f"(games: {set_score})")
-            prev_sets = curr_sets
+    show_set = st.checkbox("Show set boundaries", value=True)
+    show_game = st.checkbox("Show game boundaries", value=True)
 
-    if set_boundaries:
-        with st.expander("Set boundaries"):
-            for sb in set_boundaries:
-                st.text(sb)
+    layers = [base]
+
+    if show_set and set_boundary_points:
+        set_df = pd.DataFrame(set_boundary_points)
+        set_rules = alt.Chart(set_df).mark_rule(
+            color="red", strokeWidth=2, strokeDash=[4, 2],
+        ).encode(x="Point:Q")
+        set_labels = alt.Chart(set_df).mark_text(
+            align="left", dx=3, dy=-5, fontSize=10, color="red",
+        ).encode(x="Point:Q", text="label:N")
+        layers += [set_rules, set_labels]
+
+    if show_game and game_boundary_points:
+        game_df = pd.DataFrame(game_boundary_points)
+        game_rules = alt.Chart(game_df).mark_rule(
+            color="gray", strokeWidth=0.5, opacity=0.4,
+        ).encode(x="Point:Q")
+        layers.append(game_rules)
+
+    combined = alt.layer(*layers).properties(height=400, width="container")
+    st.altair_chart(combined, use_container_width=True)
 
     # Match statistics
     st.subheader("Match Statistics")
