@@ -2,7 +2,7 @@
 name = "matchprob"
 version = "0.1.0"
 description = "Tennis match probability calculator using Markov chains"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 dependencies = [
     "numpy>=1.26",
     "streamlit>=1.30",
@@ -15,5 +15,5 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools>=68.0"]
-build-backend = "setuptools.backends._legacy:_Backend"
+requires = ["setuptools>=45"]
+build-backend = "setuptools.build_meta"
