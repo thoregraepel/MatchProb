@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a6b3c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MatchProb">
+  <title>MatchProb</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+  <header>
+    <h1>MatchProb</h1>
+    <p class="subtitle">Tennis match win probability via Markov chains</p>
+    <div class="tabs">
+      <button id="tab-replay" class="tab active">Match Replay</button>
+      <button id="tab-manual" class="tab">Manual Score</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Sidebar / controls -->
+    <aside class="controls">
+      <h3>Model Parameters</h3>
+      <div class="control-row">
+        <label>P(server wins point)
+          <span id="p-serve-val" class="val">0.65</span>
+        </label>
+        <input type="range" id="p-serve-slider" min="0" max="1" step="0.01" value="0.65">
+      </div>
+      <div class="control-row">
+        <label><input type="checkbox" id="decouple-check"> Different per player</label>
+      </div>
+      <div class="control-row" id="p-return-row" style="display:none">
+        <label>P(server wins) — P2 serving
+          <span id="p-return-val" class="val">0.65</span>
+        </label>
+        <input type="range" id="p-return-slider" min="0" max="1" step="0.01" value="0.65">
+      </div>
+    </aside>
+
+    <!-- Match Replay Panel -->
+    <section id="replay-panel">
+      <div class="control-row">
+        <label>Select match</label>
+        <select id="match-select"></select>
+      </div>
+      <div id="match-info" class="match-info"></div>
+
+      <div class="score-box">
+        <div id="replay-score" class="score"></div>
+        <div id="replay-point-num" class="point-num"></div>
+        <div id="last-point" class="last-point"></div>
+      </div>
+
+      <div class="prob-row">
+        <div class="prob-cell">
+          <span id="p1-name-label" class="p1">P1</span>
+          <strong id="p1-prob">0.5000</strong>
+        </div>
+        <div class="prob-bar-container">
+          <div id="prob-bar" class="prob-bar" style="width:50%"></div>
+        </div>
+        <div class="prob-cell">
+          <span id="p2-name-label" class="p2">P2</span>
+          <strong id="p2-prob">0.5000</strong>
+        </div>
+      </div>
+
+      <div class="slider-row">
+        <input type="range" id="point-slider" min="0" max="100" value="0">
+      </div>
+
+      <div class="chart-toggles">
+        <label><input type="checkbox" id="set-lines-check" checked> Set boundaries</label>
+        <label><input type="checkbox" id="game-lines-check" checked> Game boundaries</label>
+      </div>
+      <div class="chart-container">
+        <canvas id="timeline-canvas"></canvas>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat"><span class="stat-label">Points played</span><span id="stats-total">0</span></div>
+        <div class="stat"><span class="stat-label" id="stats-p1-label">P1 points</span><span id="stats-p1">0</span></div>
+        <div class="stat"><span class="stat-label" id="stats-p2-label">P2 points</span><span id="stats-p2">0</span></div>
+      </div>
+    </section>
+
+    <!-- Manual Score Panel -->
+    <section id="manual-panel" style="display:none">
+      <div class="manual-grid-inputs">
+        <div class="control-row">
+          <label>Format</label>
+          <select id="m-bestof"><option value="2">Best of 3</option><option value="3">Best of 5</option></select>
+        </div>
+        <div class="score-inputs">
+          <div>
+            <label>Sets</label>
+            <div class="input-pair">
+              <input type="number" id="m-p1sets" min="0" max="2" value="0">
+              <span>-</span>
+              <input type="number" id="m-p2sets" min="0" max="2" value="0">
+            </div>
+          </div>
+          <div>
+            <label>Games</label>
+            <div class="input-pair">
+              <input type="number" id="m-p1games" min="0" max="7" value="0">
+              <span>-</span>
+              <input type="number" id="m-p2games" min="0" max="7" value="0">
+            </div>
+          </div>
+          <div>
+            <label>Points</label>
+            <div class="input-pair">
+              <input type="number" id="m-p1points" min="0" max="7" value="0">
+              <span>-</span>
+              <input type="number" id="m-p2points" min="0" max="7" value="0">
+            </div>
+          </div>
+          <div>
+            <label>Server</label>
+            <select id="m-server"><option value="1">P1</option><option value="2">P2</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-box">
+        <div id="manual-score" class="score"></div>
+      </div>
+      <div id="manual-prob" class="manual-prob"></div>
+      <div id="manual-grid"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { init } from './js/app.js';
+    init();
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+/* MatchProb — Tennis match probability calculator */
+
+:root {
+  --bg: #111;
+  --surface: #1a1a2e;
+  --surface2: #16213e;
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --accent: #2ecc71;
+  --accent2: #e74c3c;
+  --border: #333;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+header {
+  text-align: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+header h1 {
+  font-size: 1.5rem;
+  color: var(--accent);
+  margin-bottom: 0.2rem;
+}
+
+.subtitle {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-bottom: 0.8rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  justify-content: center;
+}
+
+.tab {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.tab:first-child { border-radius: 6px 0 0 6px; }
+.tab:last-child { border-radius: 0 6px 6px 0; }
+.tab.active { background: var(--accent); color: #000; font-weight: 600; border-color: var(--accent); }
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Controls / sidebar */
+.controls {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.controls h3 {
+  font-size: 0.9rem;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.control-row {
+  margin-bottom: 0.6rem;
+}
+
+.control-row label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.val {
+  color: var(--accent);
+  font-weight: 600;
+  min-width: 2.5em;
+  text-align: right;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  margin-top: 0.2rem;
+}
+
+select {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.4rem;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+input[type="number"] {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.3rem 0.4rem;
+  font-size: 0.9rem;
+  width: 3rem;
+  text-align: center;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+/* Match info */
+.match-info {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin: 0.8rem 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* Score display */
+.score-box {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin: 0.8rem 0;
+  text-align: center;
+}
+
+.score {
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.point-num, .last-point {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 0.3rem;
+}
+
+/* Probability display */
+.prob-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 0.8rem 0;
+}
+
+.prob-cell {
+  text-align: center;
+  min-width: 5rem;
+}
+
+.prob-cell .p1 { color: var(--accent); font-size: 0.8rem; }
+.prob-cell .p2 { color: var(--accent2); font-size: 0.8rem; }
+.prob-cell strong { display: block; font-size: 1.2rem; }
+
+.prob-bar-container {
+  flex: 1;
+  height: 12px;
+  background: var(--accent2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.prob-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 6px 0 0 6px;
+  transition: width 0.2s;
+}
+
+/* Slider */
+.slider-row {
+  margin: 0.5rem 0;
+}
+
+.slider-row input[type="range"] {
+  width: 100%;
+}
+
+/* Chart */
+.chart-toggles {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 0.3rem;
+}
+
+.chart-container {
+  width: 100%;
+  height: 280px;
+  background: var(--surface);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.chart-container canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Stats */
+.stats-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.8rem;
+}
+
+.stat {
+  flex: 1;
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 0.6rem;
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 0.2rem;
+}
+
+.stat span:last-child {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Manual mode */
+.manual-grid-inputs {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.score-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.score-inputs > div { flex: 1; min-width: 5rem; }
+.score-inputs label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.3rem; }
+
+.input-pair {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.input-pair span { color: var(--text-dim); }
+
+.manual-prob {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.prob-display {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.prob-display .p1 { color: var(--accent); }
+.prob-display .p2 { color: var(--accent2); }
+
+/* Grid table */
+.grid-table {
+  border-collapse: collapse;
+  margin: 0.5rem auto;
+  font-size: 0.8rem;
+}
+
+.grid-table th, .grid-table td {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.grid-table th {
+  background: var(--surface2);
+  font-weight: 600;
+}
+
+.grid-table td.na {
+  color: var(--text-dim);
+  background: var(--surface);
+}
+
+h3 {
+  font-size: 0.95rem;
+  color: var(--accent);
+  margin: 1rem 0 0.5rem;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  main { padding: 0.5rem; }
+  .prob-row { flex-direction: column; }
+  .prob-cell { min-width: auto; }
+  .stats-row { flex-direction: column; }
+  .score-inputs { flex-direction: column; }
+  .chart-container { height: 220px; }
+}
