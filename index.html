@@ -20,12 +20,13 @@
     <div class="tabs">
       <button id="tab-replay" class="tab active">Match Replay</button>
       <button id="tab-manual" class="tab">Manual Score</button>
+      <button id="tab-about" class="tab">About</button>
     </div>
   </header>
 
   <main>
     <!-- Sidebar / controls -->
-    <aside class="controls">
+    <aside id="controls" class="controls">
       <h3>Model Parameters</h3>
       <div class="control-row">
         <label>P(server wins point)
@@ -135,6 +136,70 @@
       </div>
       <div id="manual-prob" class="manual-prob"></div>
       <div id="manual-grid"></div>
+    </section>
+    <!-- About Panel -->
+    <section id="about-panel" style="display:none">
+      <div class="about-content">
+        <h2>About MatchProb</h2>
+
+        <p>MatchProb is an interactive tool for exploring the mathematics of tennis scoring.
+        Given a simple assumption about each player's probability of winning a point on serve,
+        it computes the exact probability of winning the match from any score state.</p>
+
+        <h3>What you can do</h3>
+        <ul>
+          <li><strong>Match Replay</strong> — Step through real historic matches point by point
+          and watch the win probability shift with every rally. The timeline chart reveals how
+          small moments can swing an entire match.</li>
+          <li><strong>Manual Score</strong> — Enter any score and serve probability to see the
+          exact win probability, plus a heatmap of probabilities across all game scores in the
+          current set.</li>
+          <li><strong>Adjust serve probability</strong> — Explore how even a small change in the
+          probability of winning a point on serve amplifies through games, sets, and the match.</li>
+        </ul>
+
+        <h3>The mathematics</h3>
+        <p>Tennis scoring is a finite <strong>Markov chain</strong>. The state of a match is fully
+        described by the current score (points, games, sets), who is serving, and whether a tiebreak
+        is in progress. From any non-terminal state, a single point is played: the server wins it
+        with probability <em>p</em>, and the returner wins with probability <em>1 &minus; p</em>.
+        This produces exactly two possible successor states.</p>
+
+        <p>The chain has <strong>absorbing states</strong> — the states where one player has won the
+        match. All other states are <strong>transient</strong>: the match must eventually reach an
+        absorbing state.</p>
+
+        <p>For a best-of-3 match the state space contains roughly 5,000 states; for best-of-5,
+        around 12,500. Deuce games and extended tiebreaks create cycles (deuce &rarr; advantage &rarr;
+        deuce), but we collapse these into equivalent canonical states to keep the space finite.</p>
+
+        <p>To find the win probability from every state, we use <strong>value iteration</strong>.
+        Each transient state satisfies:</p>
+
+        <div class="math">
+          v(s) = p &middot; v(s<sub>server wins</sub>) + (1 &minus; p) &middot; v(s<sub>returner wins</sub>)
+        </div>
+
+        <p>Terminal states have known values: 1 if Player 1 won, 0 if Player 2 won.
+        Starting from an initial guess, we iterate the equation above until all values converge.
+        This typically takes around 300 iterations and completes in under 100 ms in the browser
+        — no server required.</p>
+
+        <p>The match replay data comes from
+        <a href="https://github.com/JeffSackmann/tennis_pointbypoint" target="_blank" rel="noopener">
+        Jeff Sackmann's point-by-point dataset</a>, which uses a compact notation
+        (S/R for server/returner wins) to encode thousands of professional matches.</p>
+
+        <h3>Authors</h3>
+        <p><strong>Thore Graepel</strong> and <strong>Claude</strong> (Anthropic)</p>
+        <p class="about-note">Built as a collaboration between human and AI. The mathematical model,
+        architecture decisions, and domain knowledge were developed jointly; the code was written
+        by Claude and reviewed by Thore.</p>
+
+        <p class="about-links">
+          <a href="https://github.com/thoregraepel/MatchProb" target="_blank" rel="noopener">Source code on GitHub</a>
+        </p>
+      </div>
     </section>
   </main>
 

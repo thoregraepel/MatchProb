@@ -21,6 +21,7 @@ export function init() {
   // Mode tabs
   $('tab-replay').addEventListener('click', () => switchMode('replay'));
   $('tab-manual').addEventListener('click', () => switchMode('manual'));
+  $('tab-about').addEventListener('click', () => switchMode('about'));
 
   // Controls
   $('p-serve-slider').addEventListener('input', onParamChange);
@@ -55,10 +56,13 @@ function switchMode(m) {
   mode = m;
   $('tab-replay').classList.toggle('active', m === 'replay');
   $('tab-manual').classList.toggle('active', m === 'manual');
+  $('tab-about').classList.toggle('active', m === 'about');
   $('replay-panel').style.display = m === 'replay' ? '' : 'none';
   $('manual-panel').style.display = m === 'manual' ? '' : 'none';
+  $('about-panel').style.display = m === 'about' ? '' : 'none';
+  $('controls').style.display = m === 'about' ? 'none' : '';
   if (m === 'replay') onMatchChange();
-  else onManualChange();
+  else if (m === 'manual') onManualChange();
 }
 
 // ---- Parameter helpers ----
