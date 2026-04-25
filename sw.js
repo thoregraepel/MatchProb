@@ -1,5 +1,5 @@
 // MatchProb service worker — cache-first for app shell.
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `matchprob-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -12,7 +12,6 @@ const APP_SHELL = [
   '/MatchProb/js/state.js',
   '/MatchProb/js/rules.js',
   '/MatchProb/js/markov.js',
-  '/MatchProb/js/linalg.js',
   '/MatchProb/js/pbp.js',
   '/MatchProb/js/chart.js',
 ];
